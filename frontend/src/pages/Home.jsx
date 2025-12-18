@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
 import { fetchPins } from "../services/pinServices";
-import { Link } from "react-router-dom";
+import MasonryGrid from "../components/pins/MasonryGrid";
+import Loader from "../components/Loader";
+import { Helmet } from "react-helmet-async";
 
 const Home = () => {
   const [pins, setPins] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPins().then(res => setPins(res.data));
+    fetchPins()
+      .then((res) => setPins(res.data))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="p-6 columns-2 md:columns-4 gap-4">
-      {pins.map(pin => (
-        <Link to={`/pin/${pin.slug}`} key={pin._id}>
-          <img
-            src={pin.imageUrl}
-            alt={pin.title}
-            className="mb-4 rounded-lg w-full hover:opacity-90"
-          />
-        </Link>
-      ))}
-    </div>
+    <>
+      <Helmet>
+        <title>Explore Ideas | PinSphere</title>
+        <meta
+          name="description"
+          content="Explore creative ideas, images, and inspiration on PinSphere."
+        />
+      </Helmet>
+
+      {loading ? <Loader /> : <MasonryGrid pins={pins} />}
+    </>
   );
 };
 

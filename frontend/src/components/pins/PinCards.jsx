@@ -6,8 +6,8 @@ const PinCard = ({ pin }) => {
       <img
         src={pin.imageUrl}
         alt={pin.title}
-        className="rounded-lg w-full hover:opacity-90 mb-4"
         loading="lazy"
+        className="w-full mb-4 rounded-lg hover:opacity-90"
       />
     </Link>
   );

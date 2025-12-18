@@ -1,4 +1,4 @@
-import PinCard from "./PinCard";
+import PinCard from "../pins/PinCards";
 
 const MasonryGrid = ({ pins }) => {
   return (
