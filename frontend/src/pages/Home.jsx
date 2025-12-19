@@ -13,10 +13,10 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    loadInitialPins();
+    loadInitial();
   }, []);
 
-  const loadInitialPins = async () => {
+  const loadInitial = async () => {
     try {
       const data = await fetchPinsFromUnsplash({ page: 1 });
       setPins(data);
@@ -35,7 +35,7 @@ const Home = () => {
       const nextPage = page + 1;
       const newPins = await fetchPinsFromUnsplash({ page: nextPage });
 
-      if (newPins.length === 0) {
+      if (!newPins.length) {
         setHasMore(false);
       } else {
         setPins((prev) => [...prev, ...newPins]);
@@ -56,7 +56,7 @@ const Home = () => {
         <title>Explore Ideas | PinSphere</title>
       </Helmet>
 
-      <main className="px-3 sm:px-6 lg:px-8 max-w-[1600px] mx-auto animate-fade-up">
+      <main className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-6 animate-fade-up">
         <MasonryGrid
           pins={pins}
           onLoadMore={loadMore}

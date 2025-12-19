@@ -1,41 +1,23 @@
 import { useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
-import PinCard from "./PinCards";
+import PinCards from "./PinCards";
 
-const MasonryGrid = ({
-  pins,
-  onLoadMore,
-  hasMore = false,
-  loading = false,
-}) => {
+const MasonryGrid = ({ pins, onLoadMore, hasMore, loading }) => {
   const gridRef = useRef(null);
   const sentinelRef = useRef(null);
-  const observerRef = useRef(null);
 
-  // Animate pins
   useEffect(() => {
     if (!gridRef.current) return;
-
-    const cards = gridRef.current.querySelectorAll(".pin-card");
-
     gsap.fromTo(
-      cards,
-      { opacity: 0, y: 30, scale: 0.95 },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.5,
-        stagger: 0.05,
-        ease: "power2.out",
-      }
+      gridRef.current.children,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, stagger: 0.05, duration: 0.4 }
     );
   }, [pins]);
 
-  const handleObserver = useCallback(
+  const observer = useCallback(
     (entries) => {
-      const [target] = entries;
-      if (target.isIntersecting && hasMore && !loading && onLoadMore) {
+      if (entries[0].isIntersecting && hasMore && !loading && onLoadMore) {
         onLoadMore();
       }
     },
@@ -44,39 +26,25 @@ const MasonryGrid = ({
 
   useEffect(() => {
     if (!onLoadMore) return;
-
-    const sentinel = sentinelRef.current;
-    observerRef.current = new IntersectionObserver(handleObserver, {
-      rootMargin: "200px",
-    });
-
-    if (sentinel) observerRef.current.observe(sentinel);
-
-    return () => observerRef.current?.disconnect();
-  }, [handleObserver, onLoadMore]);
+    const obs = new IntersectionObserver(observer, { rootMargin: "200px" });
+    if (sentinelRef.current) obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [observer, onLoadMore]);
 
   return (
-    <div className="px-4 md:px-6 py-6">
-      <div ref={gridRef} className="masonry-grid">
+    <>
+      <div
+        ref={gridRef}
+        className="gap-4"
+        style={{ columnCount: 4 }}
+      >
         {pins.map((pin) => (
-          <PinCard key={pin._id} pin={pin} />
+          <PinCards key={pin._id} pin={pin} />
         ))}
       </div>
 
       <div ref={sentinelRef} className="h-10" />
-
-      {loading && (
-        <div className="flex justify-center py-8">
-          <div className="loader-spinner" />
-        </div>
-      )}
-
-      {!hasMore && pins.length > 0 && (
-        <p className="text-center text-muted-foreground py-8">
-          You've seen all the pins ✨
-        </p>
-      )}
-    </div>
+    </>
   );
 };
 
