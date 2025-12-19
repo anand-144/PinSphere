@@ -5,26 +5,22 @@ import PinCard from "./PinCards";
 const MasonryGrid = ({
   pins,
   onLoadMore,
-  hasMore = true,
+  hasMore = false,
   loading = false,
 }) => {
   const gridRef = useRef(null);
   const sentinelRef = useRef(null);
   const observerRef = useRef(null);
 
-  // GSAP animation for new pins
+  // Animate pins
   useEffect(() => {
     if (!gridRef.current) return;
 
-    const pinCards = gridRef.current.querySelectorAll(".pin-card");
+    const cards = gridRef.current.querySelectorAll(".pin-card");
 
     gsap.fromTo(
-      pinCards,
-      {
-        opacity: 0,
-        y: 30,
-        scale: 0.95,
-      },
+      cards,
+      { opacity: 0, y: 30, scale: 0.95 },
       {
         opacity: 1,
         y: 0,
@@ -36,11 +32,9 @@ const MasonryGrid = ({
     );
   }, [pins]);
 
-  // Infinite scroll handler
   const handleObserver = useCallback(
     (entries) => {
       const [target] = entries;
-
       if (target.isIntersecting && hasMore && !loading && onLoadMore) {
         onLoadMore();
       }
@@ -49,28 +43,17 @@ const MasonryGrid = ({
   );
 
   useEffect(() => {
+    if (!onLoadMore) return;
+
     const sentinel = sentinelRef.current;
-
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
     observerRef.current = new IntersectionObserver(handleObserver, {
-      root: null,
       rootMargin: "200px",
-      threshold: 0,
     });
 
-    if (sentinel) {
-      observerRef.current.observe(sentinel);
-    }
+    if (sentinel) observerRef.current.observe(sentinel);
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [handleObserver]);
+    return () => observerRef.current?.disconnect();
+  }, [handleObserver, onLoadMore]);
 
   return (
     <div className="px-4 md:px-6 py-6">
@@ -80,10 +63,8 @@ const MasonryGrid = ({
         ))}
       </div>
 
-      {/* Sentinel for infinite scroll */}
       <div ref={sentinelRef} className="h-10" />
 
-      {/* Loading indicator */}
       {loading && (
         <div className="flex justify-center py-8">
           <div className="loader-spinner" />
@@ -92,7 +73,7 @@ const MasonryGrid = ({
 
       {!hasMore && pins.length > 0 && (
         <p className="text-center text-muted-foreground py-8">
-          You've seen all the pins! ✨
+          You've seen all the pins ✨
         </p>
       )}
     </div>

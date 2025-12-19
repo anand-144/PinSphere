@@ -15,7 +15,7 @@ import NotFound from "./pages/NotFound";
 const App = () => {
   return (
     <HelmetProvider>
-      {/* Sonner Toast */}
+      {/* Global Toasts */}
       <Toaster richColors position="top-right" />
 
       <BrowserRouter>
@@ -23,11 +23,13 @@ const App = () => {
           <Navbar />
 
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/pin/:slug" element={<PinDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
+            {/* Protected routes */}
             <Route
               path="/upload"
               element={
@@ -37,6 +39,7 @@ const App = () => {
               }
             />
 
+            {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

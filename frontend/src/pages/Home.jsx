@@ -2,87 +2,67 @@ import { useEffect, useState, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import MasonryGrid from "../components/pins/MasonryGrid";
 import Loader from "../components/Loader";
-import { mockPins, getMorePins } from "../data/mockPins";
+import { fetchPinsFromUnsplash } from "../services/unsplash";
+import { toast } from "sonner";
 
 const Home = () => {
   const [pins, setPins] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Initial load
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setPins(mockPins);
-      setLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
+    loadInitialPins();
   }, []);
 
-  // Infinite scroll loader
-  const loadMore = useCallback(() => {
+  const loadInitialPins = async () => {
+    try {
+      const data = await fetchPinsFromUnsplash({ page: 1 });
+      setPins(data);
+    } catch {
+      toast.error("Failed to load pins");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
 
-    setLoadingMore(true);
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      const newPins = await fetchPinsFromUnsplash({ page: nextPage });
 
-    setTimeout(() => {
-      const newPins = getMorePins(page + 1);
-
-      setPins((prev) => [...prev, ...newPins]);
-      setPage((prev) => prev + 1);
-      setLoadingMore(false);
-
-      if (page >= 4) {
+      if (newPins.length === 0) {
         setHasMore(false);
+      } else {
+        setPins((prev) => [...prev, ...newPins]);
+        setPage(nextPage);
       }
-    }, 1000);
-  }, [loadingMore, hasMore, page]);
+    } catch {
+      toast.error("Failed to load more pins");
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [page, loadingMore, hasMore]);
 
-  if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+  if (loading) return <Loader />;
 
   return (
     <>
       <Helmet>
         <title>Explore Ideas | PinSphere</title>
-        <meta
-          name="description"
-          content="Explore creative ideas, images, and inspiration on PinSphere. Discover and save the best visual content."
-        />
       </Helmet>
 
-      <main
-        className="
-          px-3 sm:px-6 lg:px-8
-          max-w-[1600px] mx-auto
-          animate-fade-up
-        "
-      >
+      <main className="px-3 sm:px-6 lg:px-8 max-w-[1600px] mx-auto animate-fade-up">
         <MasonryGrid
           pins={pins}
           onLoadMore={loadMore}
           hasMore={hasMore}
           loading={loadingMore}
         />
-
-        {loadingMore && (
-          <div className="flex justify-center py-10">
-            <div className="loader-spinner" />
-          </div>
-        )}
-
-        {!hasMore && (
-          <p className="text-center text-muted-foreground py-10 text-sm">
-            You’ve reached the end ✨
-          </p>
-        )}
       </main>
     </>
   );

@@ -9,7 +9,6 @@ const PinCards = ({ pin }) => {
   return (
     <div className="pin-card mb-4 break-inside-avoid">
       <Link to={`/pin/${pin.slug}`} className="block relative group">
-        {/* Skeleton loader */}
         {!imageLoaded && (
           <div className="absolute inset-0 bg-secondary animate-pulse rounded-2xl" />
         )}
@@ -24,9 +23,7 @@ const PinCards = ({ pin }) => {
           }`}
         />
 
-        {/* Overlay */}
         <div className="pin-overlay rounded-2xl">
-          {/* Save Button */}
           <button
             className="pin-action-btn btn-primary py-2 px-4 text-sm"
             onClick={(e) => {
@@ -37,9 +34,9 @@ const PinCards = ({ pin }) => {
             Save
           </button>
 
-          {/* Action buttons */}
           <div className="flex gap-2 pin-action-btn">
             <button
+              title="Like (coming soon)"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -59,7 +56,7 @@ const PinCards = ({ pin }) => {
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              className="w-8 h-8 rounded-full bg-background/90 hover:bg-background flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full bg-background/90 hover:bg-background flex items-center justify-center"
             >
               <Download className="w-4 h-4" />
             </button>
@@ -69,7 +66,7 @@ const PinCards = ({ pin }) => {
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              className="w-8 h-8 rounded-full bg-background/90 hover:bg-background flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full bg-background/90 hover:bg-background flex items-center justify-center"
             >
               <MoreHorizontal className="w-4 h-4" />
             </button>
@@ -77,18 +74,14 @@ const PinCards = ({ pin }) => {
         </div>
       </Link>
 
-      {/* Pin info */}
       <div className="p-2">
         <h3 className="font-semibold text-sm line-clamp-2">{pin.title}</h3>
+
         <div className="flex items-center gap-2 mt-2">
-          <img
-            src={pin.author.avatar}
-            alt={pin.author.username}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-          <span className="text-xs text-muted-foreground">
-            {pin.author.username}
-          </span>
+          <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold">
+            U
+          </div>
+          <span className="text-xs text-muted-foreground">Creator</span>
         </div>
       </div>
     </div>

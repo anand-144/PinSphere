@@ -11,167 +11,74 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+    try {
+      setLoading(true);
 
-    setLoading(true);
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Simulated login
-    setTimeout(() => {
-      localStorage.setItem("token", "demo-token-123");
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      localStorage.setItem("token", data.token);
       toast.success("Welcome back!");
       navigate("/");
+    } catch (err) {
+      toast.error(err.message || "Login failed");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <>
-      <Helmet>
-        <title>Log in | PinSphere</title>
-        <meta
-          name="description"
-          content="Log in to your PinSphere account to save and share ideas."
-        />
-      </Helmet>
+      <Helmet><title>Log in | PinSphere</title></Helmet>
 
-      <div className="min-h-[calc(100vh-var(--navbar-height))] flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md bg-card rounded-3xl p-8 shadow-lg animate-fade-up">
-          
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-bold text-2xl">
-                P
-              </span>
-            </div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-            <p className="text-muted-foreground">
-              Log in to continue exploring
-            </p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <form onSubmit={handleSubmit} className="w-full max-w-md bg-card p-8 rounded-3xl shadow-lg">
+          <h1 className="text-3xl font-bold mb-6 text-center">Welcome back</h1>
 
-          {/* Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4 animate-fade-up stagger-1"
-          >
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-              />
-            </div>
+          <input
+            type="email"
+            placeholder="Email"
+            className="input-field mb-4"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pr-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember / Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-border accent-primary"
-                />
-                Remember me
-              </label>
-              <Link
-                to="/forgot-password"
-                className="text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Submit */}
+          <div className="relative mb-4">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="input-field pr-12"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  Logging in...
-                </span>
-              ) : (
-                "Log in"
-              )}
+              {showPassword ? <EyeOff /> : <Eye />}
             </button>
-          </form>
-
-          {/* Footer */}
-          <div className="mt-6 text-center animate-fade-up stagger-2">
-            <p className="text-muted-foreground">
-              Don’t have an account?{" "}
-              <Link
-                to="/register"
-                className="text-primary font-semibold hover:underline"
-              >
-                Sign up
-              </Link>
-            </p>
           </div>
 
-          {/* Social Login */}
-          <div className="mt-8 animate-fade-up stagger-3">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-card text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
+          <button className="btn-primary w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Log in"}
+          </button>
 
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <button className="btn-secondary flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/20">
-                Google
-              </button>
-              <button className="btn-secondary flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/20">
-                GitHub
-              </button>
-            </div>
-          </div>
-        </div>
+          <p className="mt-4 text-center text-sm">
+            Don’t have an account?{" "}
+            <Link to="/register" className="text-primary">Sign up</Link>
+          </p>
+        </form>
       </div>
     </>
   );
