@@ -2,10 +2,14 @@ import React from 'react'
 
 const Loader = () => {
   return (
-    <div className="flex justify-center items-center py-20">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-black"></div>
+    <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
+      <div className="loader-spinner" />
+      <p className="text-muted-foreground text-sm animate-pulse">
+        Loading amazing ideas...
+      </p>
     </div>
-  )
-}
+  );
+};
 
-export default Loader
+export default Loader;
+
